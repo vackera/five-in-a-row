@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Five in a row game by Zsolt Gerőcs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:wght@300;700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <script src="/jquery-3.7.1.min.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <script src="/index.js"></script>
+</head>
+
+<body>
+
+<div id="ranking-wrapper">
+    <div id="ranking-container">
+        <div id="ranking-header">
+            <span class="ranking-arrow">▲</span> Top 20 <span class="ranking-arrow">▲</span>
+            <span id="ranking-refresh-icon" class="ranking-refresh-icon">&#x21bb;</span></div>
+        <div id="ranking-list">
+        </div>
+    </div>
+</div>
+
+<div id="wrapper">
+    <div id="game-table">
+
+        <div id="title">Five in a row<span id="ai-version"></span>
+            <button id="new-game-button" onclick="startNewGame()">New game</button>
+        </div>
+
+        <div id="info-bar" class="info-bar">
+            <div id="infoMessage"></div>
+        </div>
+
+        <div>
+            <div id="player-name-wrapper">
+                <form id="playerNameForm" onsubmit="setPlayerName(); return false;">
+                    <label for="player-name">Your name:</label>
+                    <!--        pattern="^[a-zA-Z0-9 ]*$-->
+                    <input type="text" id="player-name" name="playerName" value="Anonymous" maxlength="20">
+                    <button id="new-name-button" type="submit">Change</button>
+                </form>
+            </div>
+        </div>
+
+        <table id="game-board">
+            <tbody>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <span id="game-score-info">Score:</span>
+            <span class="info-separator"> • </span>
+            <span id="game-step-info">Step:</span>
+            <span class="info-separator"> • </span>
+            <span id="game-time-info">Time:</span>
+            <span class="info-separator"> •  </span>
+            <span id="time-penalty-info">Time penalty:</span>
+        </div>
+
+        <div id="icon-container">
+            <a href="https://github.com/vackera" target="_blank">
+                <img src="/icon-github.png" alt="My GitHub" class="icon" id="github-link">
+            </a>
+            <a href="https://linkedin.com/in/vackera" target="_blank">
+                <img src="/icon-linkedin.png" alt="My LinkedIn" class="icon" id="linkedin-link">
+            </a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

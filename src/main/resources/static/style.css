@@ -1,0 +1,403 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background-image: url('matrix-bck.jpg');
+    background-repeat: repeat;
+    color: #041100;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+#wrapper {
+    justify-content: center;
+    align-items: center;
+}
+
+#game-board {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#game-table {
+    width: calc(70vh);
+    margin: 10px auto;
+    max-width: calc(70vh);
+    background-color: white;
+    padding: 10px;
+    position: relative;
+}
+
+table, th, td {
+    border: 1px solid black;
+    padding: 0;
+    text-align: center;
+    cursor: pointer;
+}
+
+td {
+    width: calc(100% / 15);
+    height: calc(calc(70vh) / 15);
+    max-height: calc(calc(70vh) / 15);
+    box-sizing: border-box;
+}
+
+td.clicked-player {
+    background-color: lightblue;
+}
+
+td.clicked-ai {
+    background-color: lightgreen;
+}
+
+td.last-step-ai {
+    border: 2px dotted red;
+}
+
+td.winner-cell {
+    color: #bb0000;
+    font-weight: bolder;
+}
+
+.ranked-result {
+    color: #bb0000;
+    font-weight: bolder;
+}
+
+#title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#ranking-wrapper {
+    position: absolute;
+    width: 100%;
+    max-width: 500px;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 1000;
+}
+
+#ranking-container {
+    width: 100%;
+    border: 1px solid #000;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#ranking-list {
+    display: none;
+}
+
+.ranking-refresh-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.results-error {
+    padding: 10px;
+    background-color: #ffffff;
+}
+
+#ranking-header {
+    position: relative;
+    display: block;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bolder;
+    background-color: #123b06;
+    color: white;
+}
+
+#ranking-header:hover {
+    background-color: darkgreen;
+}
+
+.result-row:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.result-row:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.result-header {
+    font-weight: bold;
+    background-color: #ddd;
+}
+
+.result-row {
+    display: flex;
+    align-items: center;
+    padding: 1px 2px;
+}
+
+.result-row div {
+    flex: none;
+    padding: 0;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.result-date {
+    width: 20%;
+}
+
+.result-name {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 50%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.result-score {
+    width: 10%;
+    text-align: right !important;
+}
+
+.result-steps {
+    width: 8%;
+    text-align: right !important;
+}
+
+.result-time {
+    width: 12%;
+    text-align: right !important;
+}
+
+.info-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(240, 240, 240, 0.5);
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    z-index: 1000;
+}
+
+#player-name-wrapper {
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.info-row {
+    margin-top: 10px;
+    padding: 0 2px;
+}
+
+#game-step-info, #game-time-info, #time-penalty-info, #game-score-info, .info-separator {
+    vertical-align: middle;
+}
+
+#game-score-info {
+    font-weight: bold;
+}
+
+#player-name {
+    margin-left: 5px;
+    width: 20ch;
+}
+
+button {
+    background-color: #123b06;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: darkgreen;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+button:active {
+    background-color: darkgreen;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+}
+
+@keyframes shake {
+    0% {
+        transform: translate(0, 0);
+        border-color: red;
+    }
+    10% {
+        transform: translate(-1px, 1px);
+    }
+    20% {
+        transform: translate(1px, -1px);
+    }
+    30% {
+        transform: translate(-1px, -1px);
+    }
+    40% {
+        transform: translate(1px, 1px);
+    }
+    50% {
+        transform: translate(-1px, 1px);
+    }
+    60% {
+        transform: translate(1px, -1px);
+    }
+    70% {
+        transform: translate(-1px, -1px);
+    }
+    80% {
+        transform: translate(1px, 1px);
+    }
+    90% {
+        transform: translate(-1px, 1px);
+    }
+    100% {
+        transform: translate(0, 0);
+        border-color: red;
+    }
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+
+input {
+    background-color: #ffffff;
+    color: #041100;
+    border: 2px solid #123b06;
+    border-radius: 10px;
+    padding: 5px 10px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+input:focus {
+    border-color: darkgreen;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+#ai-version, #new-game-button, #new-name-button {
+    margin-left: 10px;
+}
+
+#ai-version {
+    font-size: 60%;
+    font-weight: lighter;
+}
+
+#info-bar {
+    background-color: rgba(212, 237, 218, 0.9);
+    border: 1px solid #c3e6cb;
+}
+
+.message-error {
+    background-color: rgba(255, 202, 202, 0.9) !important;
+    border: 1px solid #ff5c5c !important;
+}
+
+#icon-container {
+    position: absolute;
+    bottom: 4px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+}
+
+@media only screen and (orientation: portrait) {
+
+    #game-table {
+        width: 100%;
+        margin: 5px auto;
+        padding: 5px 0;
+    }
+
+    td {
+        width: calc(100vw / 15);
+        height: calc(100vw / 15);
+        box-sizing: border-box;
+    }
+
+    #title {
+        display: flex;
+        justify-content: center;
+        align-items: baseline;
+    }
+
+    #ai-version, #new-game-button, #new-name-button {
+        margin-left: 10px;
+    }
+
+    #player-name-wrapper {
+        display: flex;
+        justify-content: center;
+        float: none !important;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    #info-wrapper {
+        margin-bottom: 10px;
+        float: none;
+        display: flex;
+        justify-content: center;
+    }
+
+    #game-step-info {
+        margin-left: 2px;
+    }
+
+    #icon-container {
+        right: 2px;
+        bottom: 2px;
+        gap: 5px;
+    }
+
+    .icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .info-row {
+        margin-top: 5px;
+        font-family: 'Open Sans Condensed', sans-serif;
+    }
+
+    #ranking-container {
+        font-family: 'Open Sans Condensed', sans-serif;
+    }
+}

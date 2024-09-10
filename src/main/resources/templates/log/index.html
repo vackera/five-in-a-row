@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Status</title>
+
+    <link rel="stylesheet" type="text/css" href="/log/style.css">
+    <script src="/log/jquery-3.7.1.min.js"></script>
+    <script src="/log/index.js"></script>
+</head>
+
+<body>
+<div id="wrapper">
+    <header id="status-header">
+        <div id="status-container" class="status-container">
+        </div>
+    </header>
+    <div id="log-container" class="log-container">
+        <select id="log-filter">
+            <option value="ALL" style="background-color: #f0f0f0;">All</option>
+            <option value="ERROR" style="background-color: red; color: white;">Error</option>
+            <option value="WARN" style="background-color: orange; color: black;">Warn</option>
+            <option value="INFO" style="background-color: blue; color: white;">Info</option>
+            <option value="DEBUG" style="background-color: green; color: white;">Debug</option>
+        </select>
+        <pre id="log-content"></pre>
+    </div>
+</div>
+</body>
+</html>

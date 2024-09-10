@@ -1,0 +1,104 @@
+:root {
+    --error-color: #ff0000;
+    --warn-color: #f8821b;
+    --info-color: #1054bb   ;
+    --debug-color: #1bf839;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#wrapper {
+    padding: 5px;
+    margin-top: 00px;
+}
+
+#status-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.status-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-size: 80%;
+}
+
+#log-container {
+    padding: 10px;
+    height: calc(100vh - 300px);
+}
+
+#log-content {
+    white-space: pre-wrap;
+    background-color: #fdfdfd;
+    padding: 10px;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.log-line {
+    padding: 3px;
+}
+
+.log-line.error {
+    color: var(--error-color);
+}
+
+.log-line.warn {
+    color: var(--warn-color);
+}
+
+.log-line.info {
+    color: var(--info-color);
+}
+
+.log-line.debug {
+    color: var(--debug-color);
+}
+
+#log-filter {
+    margin-bottom: 10px;
+    padding: 5px;
+    font-size: 16px;
+}
+
+#log-filter {
+    margin-bottom: 10px;
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+#log-filter option[value="ERROR"] {
+    background-color: var(--error-color);
+}
+
+#log-filter option[value="WARN"] {
+    background-color: var(--warn-color);
+}
+
+#log-filter option[value="INFO"] {
+    background-color: var(--info-color);
+}
+
+#log-filter option[value="DEBUG"] {
+    background-color: var(--debug-color);
+}
+
+#log-filter option[value="ALL"] {
+}

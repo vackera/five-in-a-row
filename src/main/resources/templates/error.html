@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+    <script>
+        let countdown = 5;
+
+        function updateCountdown() {
+            document.getElementById('countdown').innerHTML = countdown;
+            countdown--;
+            if (countdown < 0) {
+                window.location.href = '/';
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+    </script>
+</head>
+<body>
+<h1>Ooops!</h1>
+<p>An error occurred while processing your request.</p>
+<p>Redirecting to the <a href="/">home page</a> in <span id="countdown">5</span> seconds...</p>
+</body>
+</html>

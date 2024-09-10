@@ -1,0 +1,43 @@
+spring:
+  profiles:
+    active: default
+  datasource:
+    url: jdbc:postgresql://localhost:5432/five_in_a_row?serverTimezone=UTC
+    username: ${FIVE_IN_A_ROW_DB_USER}
+    password: ${FIVE_IN_A_ROW_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+
+logging:
+  file:
+    path: logs/
+    name: logs/application.log
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+
+server:
+  servlet:
+    session:
+      timeout: 3m
+
+scheduled:
+  interval: 300000
+
+cors-policies: http://localhost:80, http://127.0.0.1:80, http://localhost:4200, http://127.0.0.1:4200
+
+test-user:
+  name: "test"
+  password: "pass"
+  role: "Tester"

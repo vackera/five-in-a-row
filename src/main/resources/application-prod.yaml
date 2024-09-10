@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/five-in-a-row?serverTimezone=UTC
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+
+logging:
+  file:
+    path: logs/
+    name: logs/application.log
+  level:
+    root: INFO
+
+server:
+  servlet:
+    session:
+      timeout: 30m
+
+scheduled:
+  interval: 1800000
+
+cors-policies: https://atomcomci.cloud
+
+test-user:
+  name: "test"
+  password: "pass"
+  role: "Tester"
