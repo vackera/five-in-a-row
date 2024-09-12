@@ -36,6 +36,6 @@ scheduled:
 cors-policies: https://atomcomci.cloud
 
 test-user:
-  name: "test"
-  password: "pass"
+  name: ${FIVE_IN_A_ROW_TEST_USERNAME}
+  password: ${FIVE_IN_A_ROW_TEST_PASSWORD}
   role: "Tester"
