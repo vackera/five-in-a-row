@@ -24,6 +24,7 @@ const DEFAULT_PLAYER_NAME = 'Anonymous';
 
 let lastResponseCell;
 let playerResultId;
+let playerEarnedRankedResult;
 let timePenalty = 0.0;
 let timePenaltyElement;
 let timePenaltyTimer = null;
@@ -65,9 +66,7 @@ $(document).ready(function () {
         rankingDown();
         rankingUp();
         event.stopPropagation();
-        if (refreshResults() === true) {
-            displayMessage(MESSAGES.RESULTS_REFRESHED, ALERT_TYPE.SUCCESS);
-        }
+        displayMessage(MESSAGES.RESULTS_REFRESHED, ALERT_TYPE.SUCCESS);
     });
 
     $(playerNameElement)
@@ -95,7 +94,7 @@ $(document).ready(function () {
 
     setTimeout(() => {
         rankingUp();
-    }, 1000);
+    }, 500);
 });
 
 function startNewGame(firstLoad) {
@@ -116,6 +115,7 @@ function startNewGame(firstLoad) {
             $("#time-penalty-info").text("Time penalty: +0.00");
 
             playerResultId = null;
+            playerEarnedRankedResult = false;
 
             if (firstLoad === true) {
                 checkPlayerNameCookie();
@@ -156,19 +156,21 @@ function waitingForFirstStep() {
     if (!isGameStarted()) {
         firstStepAlertTimer = setTimeout(() => {
             waitingForFirstStep();
-        }, 8000);
+        }, 10000);
         displayMessage(MESSAGES.WAITING_FOR_FIRST_STEP, ALERT_TYPE.SUCCESS);
     }
 }
 
 function playerDoStep(coordinateY, coordinateX, cell) {
 
+    stopTimePenalty();
+    $("#game-board-overlay").show();
+
     if (firstStepAlertTimer != null) {
         clearTimeout(firstStepAlertTimer);
         firstStepAlertTimer = null;
         rankingDown();
     } else {
-        stopTimePenalty();
     }
 
     const dto = {
@@ -231,19 +233,17 @@ function playerDoStep(coordinateY, coordinateX, cell) {
                         displayMessage(MESSAGES.RESULT_AI_WON, ALERT_TYPE.SUCCESS, 6000);
                     }
                 }
-
                 refreshResults();
-                rankingUp();
             } else {
                 startTimePenalty();
             }
+            $("#game-board-overlay").hide();
         },
         error: function (error) {
             console.error(MESSAGES.RESPONSE_ERROR, error);
             reloadPage();
         }
     });
-
 }
 
 function reloadPage() {
@@ -290,7 +290,6 @@ function setPlayerName() {
         }, 500);
         return;
     }
-
     $.ajax({
         url: '/api/game/player-name',
         type: 'POST',
@@ -298,9 +297,7 @@ function setPlayerName() {
         data: JSON.stringify({name: newPlayerName}),
         contentType: 'application/json',
         dataType: 'text',
-        xhrFields: {
-            withCredentials: true
-        },
+
         success: function (text) {
             let data;
             try {
@@ -317,7 +314,7 @@ function setPlayerName() {
             playerNameChangeButtonIsClicked = false;
             displayMessage(MESSAGES.PLAYER_NAME_CHANGED, ALERT_TYPE.SUCCESS);
             playerName = newPlayerName;
-            $("#player-name").val(playerName);
+            $(playerNameElement).val(playerName);
         },
         error: function (error) {
             console.error(MESSAGES.RESPONSE_ERROR, error);
@@ -327,7 +324,7 @@ function setPlayerName() {
 
 }
 
-function displayMessage(message, type, duration) {
+function displayMessage(message, type, duration = 3000) {
 
     if (hideInfoBarTimer != null) {
         clearTimeout(hideInfoBarTimer);
@@ -355,7 +352,7 @@ function displayMessage(message, type, duration) {
     hideInfoBarTimer = setTimeout(() => {
         hideInfoBarTimer = null;
         $(infoBarElement).fadeOut("slow");
-    }, duration == null ? 3000 : duration);
+    }, duration);
 }
 
 function refreshResults() {
@@ -372,8 +369,6 @@ function refreshResults() {
             displayResults(null);
         }
     });
-
-    return true;
 }
 
 function displayResults(results) {
@@ -418,10 +413,13 @@ function displayResults(results) {
         `;
         rankingList.appendChild(resultRow);
         if (result.id === playerResultId) {
+            playerEarnedRankedResult = true;
             $(resultRow).addClass("ranked-result");
         }
     });
-
+    if (playerEarnedRankedResult) {
+        rankingUp();
+    }
     return true;
 }
 
