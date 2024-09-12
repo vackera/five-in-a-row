@@ -8,8 +8,8 @@
           rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/style.css">
     <script src="/jquery-3.7.1.min.js"></script>
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <script src="/index.js"></script>
 </head>
 
@@ -47,11 +47,13 @@
             </div>
         </div>
 
-        <table id="game-board">
-            <tbody>
-            </tbody>
-        </table>
-
+        <div id="game-board-container">
+            <div id="game-board-overlay"></div>
+            <table id="game-board">
+                <tbody>
+                </tbody>
+            </table>
+        </div>
         <div class="info-row">
             <span id="game-score-info">Score:</span>
             <span class="info-separator"> • </span>
