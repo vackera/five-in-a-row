@@ -1,26 +1,31 @@
 const MESSAGES = {
-    NEW_GAME: 'New game started!',
-    WAITING_FOR_FIRST_STEP: 'Waiting for the first step...',
-    GAME_STARTED: 'Game time started!',
-    RESULT_PLAYER_WON: 'Congratulations! You won!',
-    RESULT_AI_WON: 'AI player won... try again!',
-    RESULT_DRAW: 'This game is a draw... try again!',
-    INVALID_PLAYER_NAME: 'Player name must be between 3 and 20 characters and can only include English letters, numbers, and spaces.',
-    RESULTS_REFRESHED: 'Top results refreshed',
-    ERROR_AND_RELOAD: 'An error occurred. Page will reload.',
-    RESPONSE_ERROR: 'Network response was not ok.',
-    RESULTS_ERROR: 'Top results are not available at the moment.',
-    PLAYER_NAME_CHANGED: 'Player name changed',
+    NEW_GAME: "New game started!",
+    WAITING_FOR_FIRST_STEP: "Waiting for the first step...",
+    GAME_STARTED: "Game time started!",
+    RESULT_PLAYER_WON: "Congratulations! You won!",
+    RESULT_AI_WON: "AI player won... try again!",
+    RESULT_DRAW: "This game is a draw... try again!",
+    INVALID_PLAYER_NAME: "Player name must be between 3 and 20 characters and can only include English letters, numbers, and spaces.",
+    RESULTS_REFRESHED: "Top results refreshed",
+    ERROR_AND_RELOAD: "An error occurred. Page will reload.",
+    RESPONSE_ERROR: "Network response was not ok.",
+    RESULTS_ERROR: "Top results are not available at the moment.",
+    PLAYER_NAME_CHANGED: "Player name changed",
 };
 
 const ALERT_TYPE = {
-    SUCCESS: 'success',
-    ERROR: 'error'
+    SUCCESS: "success",
+    ERROR: "error"
 };
 
 const TABLE_HEIGHT = 15;
 const TABLE_WIDTH = 15;
-const DEFAULT_PLAYER_NAME = 'Anonymous';
+const DEFAULT_PLAYER_NAME = "Anonymous";
+const DEFAULT_ICONS = "XO";
+
+let playerIcon = DEFAULT_ICONS[0];
+let aiIcon = DEFAULT_ICONS[1];
+let selectedIcon = 0;
 
 let lastResponseCell;
 let playerResultId;
@@ -34,39 +39,69 @@ let aiVersion = null;
 let rankingIsUp = false;
 let playerNameChangeInProgress = false;
 let playerNameChangeButtonIsClicked = false;
-let playerName = getCookie('player-name');
+let playerName = getCookie("player-name");
 let infoBarElement;
 let playerNameElement;
+let playerIconElement;
+let aiIconElement;
 
-const CSRF_TOKEN = $('meta[name="_csrf"]').attr('content');
-const CSRF_HEADER = $('meta[name="_csrf_header"]').attr('content');
+const CSRF_TOKEN = $('meta[name="_csrf"]').attr("content");
+const CSRF_HEADER = $('meta[name="_csrf_header"]').attr("content");
 
 function addCsrfHeader(xhr) {
     if (CSRF_TOKEN && CSRF_HEADER) {
         xhr.setRequestHeader(CSRF_HEADER, CSRF_TOKEN);
     } else {
-        console.error('CSRF token or header not found!');
+        console.error("CSRF token or header not found!");
     }
 }
 
 $(document).ready(function () {
 
-    timePenaltyElement = document.getElementById('time-penalty-info');
-    infoBarElement = document.getElementById('info-bar');
-    playerNameElement = document.getElementById('player-name');
+    timePenaltyElement = document.getElementById("time-penalty-info");
+    infoBarElement = document.getElementById("info-bar");
+    playerNameElement = document.getElementById("player-name");
+    playerIconElement = document.getElementById("icon-player");
+    aiIconElement = document.getElementById("icon-ai");
+
+    $(playerIconElement).text(playerIcon);
+    $(aiIconElement).text(aiIcon);
 
     getAIVersion();
     refreshResults();
     startNewGame(true);
+
+    $(playerIconElement).on("click", function () {
+        selectIcon(0);
+    });
+
+    $(aiIconElement).on("click", function () {
+        selectIcon(1);
+    });
+
+    $("#new-game-button").on("click", function () {
+        startNewGame();
+    });
+
+    $("#player-name-form").on("submit", function () {
+        event.preventDefault();
+        setPlayerName();
+    });
+
     $("#ranking-header").on("click", function () {
         rankingToggle();
     });
 
     $("#ranking-refresh-icon").on("click", function (event) {
+        refreshResults();
         rankingDown();
         rankingUp();
         event.stopPropagation();
         displayMessage(MESSAGES.RESULTS_REFRESHED, ALERT_TYPE.SUCCESS);
+    });
+
+    $("#info-bar").on("click", function () {
+        hideInfoBar();
     });
 
     $(playerNameElement)
@@ -84,12 +119,12 @@ $(document).ready(function () {
             $("#player-name").val("");
         });
 
-    $('#github-link').click(function () {
-        logClick('github');
+    $("#github-link").click(function () {
+        logClick("github");
     });
 
-    $('#linkedin-link').click(function () {
-        logClick('linkedin');
+    $("#linkedin-link").click(function () {
+        logClick("linkedin");
     });
 
     setTimeout(() => {
@@ -100,11 +135,11 @@ $(document).ready(function () {
 function startNewGame(firstLoad) {
 
     $.ajax({
-        url: '/api/game/new',
-        type: 'POST',
+        url: "/api/game/new",
+        type: "POST",
         beforeSend: addCsrfHeader,
         success: function () {
-            const table = $('#game-board')[0];
+            const table = $("#game-board")[0];
             $(table).html("");
             createGameBoard();
 
@@ -156,7 +191,7 @@ function waitingForFirstStep() {
     if (!isGameStarted()) {
         firstStepAlertTimer = setTimeout(() => {
             waitingForFirstStep();
-        }, 10000);
+        }, 12000);
         displayMessage(MESSAGES.WAITING_FOR_FIRST_STEP, ALERT_TYPE.SUCCESS);
     }
 }
@@ -179,17 +214,17 @@ function playerDoStep(coordinateY, coordinateX, cell) {
     };
 
     $.ajax({
-        url: '/api/game/player-step',
-        type: 'POST',
+        url: "/api/game/player-step",
+        type: "POST",
         beforeSend: addCsrfHeader,
-        contentType: 'application/json',
+        contentType: "application/json",
         data: JSON.stringify(dto),
         success: function (data) {
-            $(cell).text("X");
+            $(cell).text(playerIcon);
             $(cell).addClass("clicked-player");
-            $(cell).off('click');
+            $(cell).off("click");
 
-            const table = $('#game-board')[0];
+            const table = $("#game-board")[0];
 
             $("#game-step-info").text(`Step: ${data.stepCount}`);
             $("#game-time-info").text(`Time: ${formatTime(data.gameTimeInMillis)}s`);
@@ -200,9 +235,9 @@ function playerDoStep(coordinateY, coordinateX, cell) {
             } else if (data.gameStatus === "IN_PROGRESS" || data.gameStatus === "AI_WON") {
                 const responseCell = table.rows[data.step.coordinateY].cells[data.step.coordinateX];
 
-                $(responseCell).text("O");
+                $(responseCell).text(aiIcon);
                 $(responseCell).addClass("clicked-ai");
-                $(responseCell).off('click');
+                $(responseCell).off("click");
 
                 if (isGameStarted()) {
                     $(lastResponseCell).removeClass("last-step-ai");
@@ -215,9 +250,9 @@ function playerDoStep(coordinateY, coordinateX, cell) {
             }
 
             if (data.gameStatus !== "IN_PROGRESS") {
-                let cells = document.querySelectorAll('#game-board td, #myTable th');
+                const cells = document.querySelectorAll("#game-board td, #myTable th");
                 cells.forEach(function (cell) {
-                    $(cell).off('click');
+                    $(cell).off("click");
                 });
 
                 if (data.gameStatus !== "DRAW") {
@@ -254,14 +289,14 @@ function reloadPage() {
 
 function createGameBoard() {
 
-    const table = $('#game-board')[0];
+    const table = $("#game-board")[0];
     lastResponseCell = null;
     for (let i = 0; i < TABLE_HEIGHT; i++) {
-        const row = document.createElement('tr');
+        const row = document.createElement("tr");
         for (let j = 0; j < TABLE_WIDTH; j++) {
-            const cell = document.createElement('td');
+            const cell = document.createElement("td");
 
-            $(cell).on('click', function () {
+            $(cell).on("click", function () {
                 playerDoStep(i, j, cell);
             });
 
@@ -291,12 +326,12 @@ function setPlayerName() {
         return;
     }
     $.ajax({
-        url: '/api/game/player-name',
-        type: 'POST',
+        url: "/api/game/player-name",
+        type: "POST",
         beforeSend: addCsrfHeader,
         data: JSON.stringify({name: newPlayerName}),
-        contentType: 'application/json',
-        dataType: 'text',
+        contentType: "application/json",
+        dataType: "text",
 
         success: function (text) {
             let data;
@@ -336,7 +371,7 @@ function displayMessage(message, type, duration = 3000) {
         if (!isGameStarted()) {
             firstStepAlertTimer = setTimeout(() => {
                 waitingForFirstStep();
-            }, 8000);
+            }, 12000);
         }
     }
 
@@ -355,12 +390,21 @@ function displayMessage(message, type, duration = 3000) {
     }, duration);
 }
 
+function hideInfoBar() {
+
+    if (hideInfoBarTimer != null) {
+        clearTimeout(hideInfoBarTimer);
+        hideInfoBarTimer = null;
+        $(infoBarElement).fadeOut("slow");
+    }
+}
+
 function refreshResults() {
 
     $.ajax({
-        url: '/api/result',
-        type: 'GET',
-        dataType: 'json',
+        url: "/api/result",
+        type: "GET",
+        dataType: "json",
         success: function (data) {
             displayResults(data);
         },
@@ -373,11 +417,11 @@ function refreshResults() {
 
 function displayResults(results) {
 
-    const rankingList = document.getElementById('ranking-list');
+    const rankingList = document.getElementById("ranking-list");
     $(rankingList).html("");
 
     if (results === null) {
-        const headerRow = document.createElement('div');
+        const headerRow = document.createElement("div");
         rankingList.appendChild(headerRow);
         $(headerRow).addClass("results-error");
         $(headerRow).html(MESSAGES.RESULTS_ERROR);
@@ -385,7 +429,7 @@ function displayResults(results) {
         return false;
     }
 
-    const headerRow = document.createElement('div');
+    const headerRow = document.createElement("div");
     $(headerRow).addClass("result-row result-header");
     headerRow.innerHTML = `
         <div class="result-date">Date</div>
@@ -397,7 +441,7 @@ function displayResults(results) {
     rankingList.appendChild(headerRow);
 
     results.forEach((result, index) => {
-        const resultRow = document.createElement('div');
+        const resultRow = document.createElement("div");
         $(resultRow).addClass("result-row");
         if (index % 2 === 0) {
             $(resultRow).addClass("even-row");
@@ -453,7 +497,7 @@ function rankingUp() {
 function checkPlayerNameCookie() {
 
     if (playerName != null) {
-        $("#player-name").val(playerName.replace(/_/g, ' '));
+        $("#player-name").val(playerName.replace(/_/g, " "));
         setPlayerName();
         playerNameChangeButtonIsClicked = false;
     } else {
@@ -465,10 +509,10 @@ function checkPlayerNameCookie() {
 function getCookie(name) {
 
     const cookieString = document.cookie;
-    const cookies = cookieString.split('; ');
+    const cookies = cookieString.split("; ");
 
     for (let cookie of cookies) {
-        const cookiePair = cookie.split('=');
+        const cookiePair = cookie.split("=");
         const cookieName = cookiePair[0];
         const cookieValue = cookiePair[1];
 
@@ -483,9 +527,9 @@ function getCookie(name) {
 function getAIVersion() {
 
     $.ajax({
-        url: '/api/game/ai-version',
-        type: 'GET',
-        dataType: 'text',
+        url: "/api/game/ai-version",
+        type: "GET",
+        dataType: "text",
         success: function (data) {
             aiVersion = data;
             $("#ai-version").text(`(AI version: ${data})`);
@@ -524,10 +568,10 @@ function formatTime(timeInMillis) {
 function logClick(link) {
 
     $.ajax({
-        url: 'api/server/log-click',
-        type: 'POST',
+        url: "api/server/log-click",
+        type: "POST",
         beforeSend: addCsrfHeader,
-        contentType: 'application/json',
+        contentType: "application/json",
         data: JSON.stringify({
             link: link,
             screenWidth: window.innerWidth,
@@ -538,3 +582,32 @@ function logClick(link) {
         }
     });
 }
+
+function selectIcon(icon) {
+
+    if (icon !== selectedIcon) {
+        if (icon === 0) {
+            $(playerIconElement).addClass("selected");
+            $(aiIconElement).removeClass("selected");
+        } else {
+            $(aiIconElement).addClass("selected");
+            $(playerIconElement).removeClass("selected");
+        }
+        playerIcon = DEFAULT_ICONS[icon];
+        aiIcon = DEFAULT_ICONS[icon ^ 1];
+        selectedIcon = icon;
+
+        const cells = document.querySelectorAll("#game-board td, #myTable th");
+        cells.forEach(function (cell) {
+            let actualIcon = $(cell).text();
+            if (actualIcon !== "") {
+                $(cell).text(actualIcon === DEFAULT_ICONS[0] ? DEFAULT_ICONS[1] : DEFAULT_ICONS[0]);
+            }
+        });
+    }
+}
+
+document.getElementById('color-picker').addEventListener('input', function() {
+    const selectedColor = this.value;
+    console.log('Selected color:', selectedColor);
+});
