@@ -606,8 +606,3 @@ function selectIcon(icon) {
         });
     }
 }
-
-document.getElementById('color-picker').addEventListener('input', function() {
-    const selectedColor = this.value;
-    console.log('Selected color:', selectedColor);
-});
