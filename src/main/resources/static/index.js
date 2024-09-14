@@ -21,11 +21,15 @@ const ALERT_TYPE = {
 const TABLE_HEIGHT = 15;
 const TABLE_WIDTH = 15;
 const DEFAULT_PLAYER_NAME = "Anonymous";
+const INFO_BOX_CONTENT = "<strong>Single click:</strong> Change color <br /><strong>Double click:</strong> Change icon";
 const DEFAULT_ICONS = "XO";
+const DEFAULT_ICON_COLORS = ["#ADD8E6", "#90EE90"];
 
 let playerIcon = DEFAULT_ICONS[0];
 let aiIcon = DEFAULT_ICONS[1];
-let selectedIcon = 0;
+let playerIconColor = DEFAULT_ICON_COLORS[0];
+let aiIconColor = DEFAULT_ICON_COLORS[1];
+let playerMarkedIcon = 0;
 
 let lastResponseCell;
 let playerResultId;
@@ -41,9 +45,16 @@ let playerNameChangeInProgress = false;
 let playerNameChangeButtonIsClicked = false;
 let playerName = getCookie("player-name");
 let infoBarElement;
+let infoBoxElement;
 let playerNameElement;
-let playerIconElement;
-let aiIconElement;
+let firstPlayerIconElement;
+let firstPlayerIconContainerElement;
+let firstPlayerColorElement;
+let secondPlayerIconElement;
+let secondPlayerIconContainerElement;
+let secondPlayerColorElement;
+let clickTimeout = null;
+let $dynamicStyles = $("<style></style>");
 
 const CSRF_TOKEN = $('meta[name="_csrf"]').attr("content");
 const CSRF_HEADER = $('meta[name="_csrf_header"]').attr("content");
@@ -60,24 +71,33 @@ $(document).ready(function () {
 
     timePenaltyElement = document.getElementById("time-penalty-info");
     infoBarElement = document.getElementById("info-bar");
+    infoBoxElement = document.getElementById("info-box");
     playerNameElement = document.getElementById("player-name");
-    playerIconElement = document.getElementById("icon-player");
-    aiIconElement = document.getElementById("icon-ai");
+    firstPlayerIconElement = document.getElementById("first-player-icon");
+    firstPlayerIconContainerElement = document.getElementById("first-player-icon-container");
+    firstPlayerColorElement = document.getElementById("first-player-color");
+    secondPlayerIconElement = document.getElementById("second-player-icon");
+    secondPlayerIconContainerElement = document.getElementById("second-player-icon-container");
+    secondPlayerColorElement = document.getElementById("second-player-color");
 
-    $(playerIconElement).text(playerIcon);
-    $(aiIconElement).text(aiIcon);
+    $(firstPlayerIconElement).text(playerIcon);
+    $(firstPlayerIconContainerElement).css("background-color", playerIconColor);
+    $(firstPlayerColorElement).val(playerIconColor);
+    $(secondPlayerIconElement).text(aiIcon);
+    $(secondPlayerIconContainerElement).css("background-color", aiIconColor);
+    $(secondPlayerColorElement).val(aiIconColor);
+    $(infoBoxElement).html(INFO_BOX_CONTENT);
+
+
+    $(firstPlayerIconContainerElement).addClass("selected");
+
+    $("head").append($dynamicStyles);
+    createOrUpdateCSSRule("clicked-player", "background-color", playerIconColor);
+    createOrUpdateCSSRule("clicked-ai", "background-color", aiIconColor);
 
     getAIVersion();
     refreshResults();
     startNewGame(true);
-
-    $(playerIconElement).on("click", function () {
-        selectIcon(0);
-    });
-
-    $(aiIconElement).on("click", function () {
-        selectIcon(1);
-    });
 
     $("#new-game-button").on("click", function () {
         startNewGame();
@@ -125,6 +145,39 @@ $(document).ready(function () {
 
     $("#linkedin-link").click(function () {
         logClick("linkedin");
+    });
+
+    $(document).on("input", ".icon-choice input[type='color']", function () {
+        const color = $(this).val();
+        $(this).closest(".icon-choice").css("background-color", color);
+    });
+
+    $(document).on("change", ".icon-choice input[type='color']", function () {
+        const parent = $(this).closest(".icon-choice");
+        selectColor(parent.data("index"), $(this).val());
+    });
+
+    $(document).on("click", ".icon-choice", function (event) {
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+            clickTimeout = null;
+        } else {
+            clickTimeout = setTimeout(function () {
+                $(event.currentTarget).find('input[type="color"]').trigger("click");
+                clickTimeout = null;
+            }, 300);
+        }
+    });
+
+    $(document).on("dblclick", ".icon-choice", function (event) {
+        if ($(event.target).is('input[type="color"]')) {
+            return;
+        }
+        selectIcon($(this).data("index"));
+    });
+
+    $('input[type="color"]').on("click", function (event) {
+        event.stopPropagation();
     });
 
     setTimeout(() => {
@@ -583,26 +636,65 @@ function logClick(link) {
     });
 }
 
-function selectIcon(icon) {
+function selectIcon(element) {
 
-    if (icon !== selectedIcon) {
-        if (icon === 0) {
-            $(playerIconElement).addClass("selected");
-            $(aiIconElement).removeClass("selected");
+    if (element !== playerMarkedIcon) {
+        if (element === 0) {
+            $(firstPlayerIconContainerElement).addClass("selected");
+            $(secondPlayerIconContainerElement).removeClass("selected");
         } else {
-            $(aiIconElement).addClass("selected");
-            $(playerIconElement).removeClass("selected");
+            $(secondPlayerIconContainerElement).addClass("selected");
+            $(firstPlayerIconContainerElement).removeClass("selected");
         }
-        playerIcon = DEFAULT_ICONS[icon];
-        aiIcon = DEFAULT_ICONS[icon ^ 1];
-        selectedIcon = icon;
+
+        playerIcon = DEFAULT_ICONS[element];
+        aiIcon = DEFAULT_ICONS[element ^ 1];
+        playerMarkedIcon = element;
+
+        [playerIconColor, aiIconColor] = [aiIconColor, playerIconColor];
+
+        createOrUpdateCSSRule("clicked-player", "background-color", playerIconColor);
+        createOrUpdateCSSRule("clicked-ai", "background-color", aiIconColor);
 
         const cells = document.querySelectorAll("#game-board td, #myTable th");
         cells.forEach(function (cell) {
-            let actualIcon = $(cell).text();
+            const actualIcon = $(cell).text();
             if (actualIcon !== "") {
                 $(cell).text(actualIcon === DEFAULT_ICONS[0] ? DEFAULT_ICONS[1] : DEFAULT_ICONS[0]);
             }
         });
     }
+}
+
+function selectColor(element, color) {
+
+    let selectedPlayerClass;
+    if (element === playerMarkedIcon) {
+        selectedPlayerClass = "clicked-player";
+        playerIconColor = color;
+    } else {
+        selectedPlayerClass = "clicked-ai";
+        aiIconColor = color;
+    }
+    createOrUpdateCSSRule(selectedPlayerClass, "background-color", color);
+}
+
+function createOrUpdateCSSRule(className, propertyName, value) {
+
+    let $style = $("#dynamic-style");
+    if ($style.length === 0) {
+        $style = $('<style id="dynamic-style"></style>').appendTo("head");
+    }
+
+    let cssRules = $style.html();
+    const newRule = `.${className} { ${propertyName}: ${value} !important; }`;
+    const regex = new RegExp(`\\.${className}[^}]*\\}`, "g");
+
+    if (regex.test(cssRules)) {
+        cssRules = cssRules.replace(regex, newRule);
+    } else {
+        cssRules += newRule;
+    }
+
+    $style.html(cssRules);
 }

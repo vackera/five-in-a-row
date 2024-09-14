@@ -52,6 +52,7 @@ table, th, td {
     padding: 0;
     text-align: center;
     cursor: pointer;
+    user-select: none;
 }
 
 td {
@@ -59,14 +60,6 @@ td {
     height: calc(calc(70vh) / 15);
     max-height: calc(calc(70vh) / 15);
     box-sizing: border-box;
-}
-
-td.clicked-player {
-    background-color: lightblue;
-}
-
-td.clicked-ai {
-    background-color: lightgreen;
 }
 
 td.last-step-ai {
@@ -108,11 +101,48 @@ td.winner-cell {
     line-height: 1;
 }
 
-#player-icon {
+#info-icon-container {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 5px;
+    position: relative;
+}
+
+#info-icon {
+    cursor: help;
+    font-size: 18px;
+    font-weight: bold;
+    color: darkgreen;
+}
+
+#info-box {
+    display: none;
+    position: absolute;
+    left: -100px;
+    transform: translateY(80%);
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    width: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+#info-icon-container:hover #info-box {
+    display: block;
+}
+
+#player-icons {
     display: flex;
     align-items: center;
     gap: 5px;
     margin-left: auto;
+    border: 1px dashed darkgreen;
+    border-radius: 10px;
+    padding: 6px;
+    position: relative;
 }
 
 .icon-choice {
@@ -126,17 +156,31 @@ td.winner-cell {
     text-align: center;
     line-height: 25px;
     border-radius: 5px;
-    transition: background-color 0.3s, border-color 0.3s;
+    user-select: none;
+    opacity: 0.7;
+    transition: opacity 0.3s;
 }
 
 .icon-choice.selected {
-    background-color: #123b06;
-    color: white;
-    border-color: #123b06;
+    opacity: 1;
+    border: 2px solid #555;
 }
 
 .icon-choice:not(.selected):hover {
-    background-color: #f0f0f0;
+    border: 2px solid #007bff;
+}
+
+.icon-choice input[type="color"] {
+    position: absolute;
+    top: 100%;
+    right: 40px;
+    z-index: 10;
+    width: 100px;
+    height: 30px;
+    border: none;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
 }
 
 #ranking-wrapper {
@@ -248,15 +292,16 @@ td.winner-cell {
 
 .info-bar {
     position: fixed;
-    top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
     background-color: rgba(240, 240, 240, 0.5);
     border-bottom: 1px solid #ccc;
     padding: 10px;
     text-align: center;
-    z-index: 1000;
+    z-index: 1001;
     cursor: pointer;
+    user-select: none;
 }
 
 #player-name-wrapper {
@@ -285,7 +330,7 @@ button {
     background-color: #123b06;
     color: white;
     border: none;
-    border-radius: 50px;
+    border-radius: 20px;
     padding: 9px 14px;
     font-size: 11px;
     font-weight: bold;
@@ -426,7 +471,7 @@ input::placeholder {
         font-family: "Open Sans Condensed", sans-serif;
     }
 
-    #player-icon {
+    #player-icons {
         margin-left: 20px;
     }
 
