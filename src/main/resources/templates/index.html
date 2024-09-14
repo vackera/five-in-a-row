@@ -38,11 +38,22 @@
                 <span id="ai-version"></span>
             </div>
             <button id="new-game-button">New game</button>
-            <div id="player-icon">
-                You:
-                <span id="icon-player" class="icon-choice selected">X</span>
-                <span id="icon-ai" class="icon-choice">O</span>
+
+            <div id="player-icons">
+                <div id="info-icon-container">
+                    <span id="info-icon">?</span>
+                    <div id="info-box"></div>
+                </div>
+                <div id="first-player-icon-container" class="icon-choice" data-index="0">
+                    <span id="first-player-icon">X</span>
+                    <input id="first-player-color" type="color" />
+                </div>
+                <div id="second-player-icon-container" class="icon-choice" data-index="1">
+                    <span id="second-player-icon">O</span>
+                    <input id="second-player-color" type="color" />
+                </div>
             </div>
+
         </div>
 
         <div id="player-name-wrapper">
