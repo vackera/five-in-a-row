@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CellAlreadyReserved.class)
-    public ResponseEntity<ValidationError> handleUserAlreadyExistException(CellAlreadyReserved ex) {
+    public ResponseEntity<ValidationError> handleCellAlreadyReserved(CellAlreadyReserved ex) {
         log.error("Cell already reserved: {} : {}", ex.getStepDetails().getCoordinateY(), ex.getStepDetails().getCoordinateX());
 
         ValidationError validationError = new ValidationError();
@@ -88,4 +88,5 @@ public class GlobalExceptionHandler {
 
         return validationError;
     }
+
 }

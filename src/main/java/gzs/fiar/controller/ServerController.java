@@ -37,7 +37,7 @@ public class ServerController {
     public ServerStatusDto getStatus() {
 
         ServerStatusDto status = serverService.getStatus();
-        log.info("Server status requested");
+        log.debug("Server status requested");
 
         return status;
     }
@@ -48,7 +48,7 @@ public class ServerController {
             Path path = Paths.get(logFilePath);
             String content = Files.readString(path);
 
-            log.info("Server log requested");
+            log.debug("Server log requested");
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_TYPE, "text/plain")

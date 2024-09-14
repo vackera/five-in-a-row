@@ -1,5 +1,6 @@
 package gzs.fiar.controller;
 
+import gzs.fiar.logic.GameStatus;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,7 +47,7 @@ public class GameController {
         String newGameID = gameService.newGame(previousGameID, newSession.getId());
         newSession.setAttribute(SESSION_GAME_ATTRIBUTE, newGameID);
 
-        log.info("New game started: ({})", newGameID);
+        log.info("New game created: ({})", newGameID);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -56,11 +57,12 @@ public class GameController {
         String gameID = getGameID(session);
         ResponseStep response = gameService.playerDoStep(gameID, step);
 
-        log.info("Game ({}) | {} : {} - User | {} : {} - AI | {}"
-                , gameID
-                , step.getCoordinateY(), step.getCoordinateX()
-                , response.getStep().getCoordinateY(), response.getStep().getCoordinateX()
-                , response.getGameStatus());
+        if (response.getGameStatus() != GameStatus.IN_PROGRESS) {
+            log.info("Game ({}) ended after {} steps - {}"
+                    , gameID
+                    , response.getStepCount()
+                    , response.getGameStatus());
+        }
 
         return response;
     }

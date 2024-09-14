@@ -35,7 +35,7 @@ public class FiveInARowApplication {
             for (long i = 1; i <= AIPlayer.AI_LEVELS; i++) {
                 statistic.setLevel(i);
                 statisticService.createStatisticField(statistic);
-                log.info("Statistic table is empty, level fields created");
+                log.error("Statistic table is empty, level fields created");
             }
         }
     }
