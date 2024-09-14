@@ -3,9 +3,13 @@ package gzs.fiar.service.impl;
 import gzs.fiar.domain.Statistic;
 import gzs.fiar.repository.StatisticRepository;
 import gzs.fiar.service.StatisticService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+@Slf4j
 @Service
 public class StatisticServiceImpl implements StatisticService {
 
@@ -32,6 +36,7 @@ public class StatisticServiceImpl implements StatisticService {
     public void increaseGameCreated(long level) {
 
         Statistic statistic = getStatisticByLevel(level);
+        if (statistic == null) return;
 
         statistic.setGameCreated(statistic.getGameCreated() + 1);
         statisticRepository.save(statistic);
@@ -41,6 +46,7 @@ public class StatisticServiceImpl implements StatisticService {
     public void increaseGameStarted(long level) {
 
         Statistic statistic = getStatisticByLevel(level);
+        if (statistic == null) return;
 
         statistic.setGameStarted(statistic.getGameStarted() + 1);
         statisticRepository.save(statistic);
@@ -50,6 +56,7 @@ public class StatisticServiceImpl implements StatisticService {
     public void increaseGameFinished(long level) {
 
         Statistic statistic = getStatisticByLevel(level);
+        if (statistic == null) return;
 
         statistic.setGameFinished(statistic.getGameFinished() + 1);
         statisticRepository.save(statistic);
@@ -59,6 +66,7 @@ public class StatisticServiceImpl implements StatisticService {
     public void increasePlayerWins(long level) {
 
         Statistic statistic = getStatisticByLevel(level);
+        if (statistic == null) return;
 
         statistic.setPlayerWon(statistic.getPlayerWon() + 1);
         statisticRepository.save(statistic);
@@ -68,6 +76,7 @@ public class StatisticServiceImpl implements StatisticService {
     public void increaseAIWins(long level) {
 
         Statistic statistic = getStatisticByLevel(level);
+        if (statistic == null) return;
 
         statistic.setAiWon(statistic.getAiWon() + 1);
         statisticRepository.save(statistic);
@@ -77,6 +86,7 @@ public class StatisticServiceImpl implements StatisticService {
     public void increaseDraws(long level) {
 
         Statistic statistic = getStatisticByLevel(level);
+        if (statistic == null) return;
 
         statistic.setDraw(statistic.getDraw() + 1);
         statisticRepository.save(statistic);
@@ -84,7 +94,12 @@ public class StatisticServiceImpl implements StatisticService {
 
     public Statistic getStatisticByLevel(long level) {
 
-        return statisticRepository.findById(level)
-                .orElseThrow(() -> new RuntimeException("Statistic not found for this level: " + level));
+        Optional<Statistic> statistic = statisticRepository.findById(level);
+        if (statistic.isEmpty()) {
+            log.warn("Can't log statistics for level {}", level);
+            return null;
+        }
+
+        return statistic.get();
     }
 }

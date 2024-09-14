@@ -1,9 +1,8 @@
 package gzs.fiar.scheduling;
 
-import lombok.extern.slf4j.Slf4j;
 import gzs.fiar.logic.GameManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +11,6 @@ import org.springframework.stereotype.Component;
 public class ScheduledTasks {
 
     private final GameManager gameManager;
-
-    @Value("${scheduled.interval}")
-    private long fixedRate;
 
     @Autowired
     public ScheduledTasks(GameManager gameManager) {
@@ -25,7 +21,7 @@ public class ScheduledTasks {
     public void performTask() {
 
         long deletedGames = gameManager.deleteInactiveGames();
-        log.info("({}) games deleted with inactive ID", deletedGames);
+        log.info("({}) inactive games deleted", deletedGames);
     }
 
 }

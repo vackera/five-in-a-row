@@ -27,7 +27,7 @@ public class ResultController {
     public List<ResultDto> getBestResults() {
 
         List <ResultDto> response = resultService.getBestResults();
-        log.info("Best {} results listed", response.size());
+        log.debug("Best {} results listed", response.size());
         return response;
     }
 }
