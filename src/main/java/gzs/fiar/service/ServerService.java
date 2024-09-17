@@ -6,4 +6,6 @@ public interface ServerService {
     ServerStatusDto getStatus();
 
     void logClick(String link, String userAgent, String language, String remoteAddr, String screenWidth, String screenHeight);
+
+    String getLog();
 }

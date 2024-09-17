@@ -8,16 +8,28 @@ import gzs.fiar.logic.GameManager;
 import gzs.fiar.repository.ClickRepository;
 import gzs.fiar.service.ServerService;
 import gzs.fiar.service.StatisticService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+@Slf4j
 @Service
 public class ServerServiceImpl implements ServerService {
+
+    @Value("${logging.file.name}")
+    private String logFilePath;
 
     private final StatisticService statisticService;
     private final ClickRepository clickRepository;
@@ -74,4 +86,18 @@ public class ServerServiceImpl implements ServerService {
         clickRepository.save(click);
     }
 
+    @Override
+    public String getLog() {
+
+        String response;
+        try {
+            Path path = Paths.get(logFilePath);
+            response = Files.readString(path);
+
+            return response;
+        } catch (IOException e) {
+            log.error("Error reading log file: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Error reading log file", e);
+        }
+    }
 }
