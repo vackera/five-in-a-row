@@ -1,29 +1,19 @@
 package gzs.fiar.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
 import gzs.fiar.dto.ClickDetailsDto;
 import gzs.fiar.dto.ServerStatusDto;
 import gzs.fiar.service.ServerService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/server")
 public class ServerController {
-
-    @Value("${logging.file.name}")
-    private String logFilePath;
 
     private final ServerService serverService;
 
@@ -33,33 +23,27 @@ public class ServerController {
         this.serverService = serverStatusService;
     }
 
+    @Secured("ROLE_TESTER")
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/status")
     public ServerStatusDto getStatus() {
 
-        ServerStatusDto status = serverService.getStatus();
         log.debug("Server status requested");
 
-        return status;
+        return serverService.getStatus();
     }
 
+    @Secured("ROLE_TESTER")
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/log")
-    public ResponseEntity<String> getLogFile() {
-        try {
-            Path path = Paths.get(logFilePath);
-            String content = Files.readString(path);
+    public String getLogFile() {
 
             log.debug("Server log requested");
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, "text/plain")
-                    .body(content);
-
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error reading log file: " + e.getMessage());
-        }
+            return serverService.getLog();
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @PostMapping("/log-click")
     public void logClick(HttpServletRequest request, @RequestBody ClickDetailsDto clickDetails) {
 
