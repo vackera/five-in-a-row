@@ -36,7 +36,7 @@ public class ResultServiceImpl implements ResultService {
 
         long resultId = resultRepository.save(result).getId();
 
-        log.info("Player's ({}) result saved to database ({})", name, resultId);
+        log.info("{}'s result saved ({})", name, resultId);
 
         return resultId;
     }
