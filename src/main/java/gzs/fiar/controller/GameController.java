@@ -47,7 +47,7 @@ public class GameController {
         String newGameID = gameService.newGame(previousGameID, newSession.getId());
         newSession.setAttribute(SESSION_GAME_ATTRIBUTE, newGameID);
 
-        log.info("New game created: ({})", newGameID);
+        log.info("({}) game created", newGameID);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -58,9 +58,10 @@ public class GameController {
         ResponseStep response = gameService.playerDoStep(gameID, step);
 
         if (response.getGameStatus() != GameStatus.IN_PROGRESS) {
-            log.info("Game ({}) ended after {} steps - {}"
+            log.info("({}) ended ({} steps - {}s - {})"
                     , gameID
                     , response.getStepCount()
+                    , String.format("%.2f", response.getGameTimeInMillis() / 1000.0)
                     , response.getGameStatus());
         }
 
@@ -84,7 +85,7 @@ public class GameController {
 
         response.addCookie(cookie);
 
-        log.info("Game's ({}) player name changed to '{}'", gameID, newName.getName());
+        log.info("({}) player name changed ({})", gameID, newName.getName());
     }
 
     @ResponseStatus(HttpStatus.OK)
