@@ -34,7 +34,7 @@ function highlightLog(logData, filter) {
     return lines.map(line => {
         if (filter === "ALL" || line.includes(filter)) {
 
-            const timestampMatch = line.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+\d{2}:\d{2}/);
+            const timestampMatch = line.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:[+-]\d{2}:\d{2}|Z)/);
             const logLevelMatch = line.match(/\s(INFO|WARN|ERROR|DEBUG)\s/);
             const messageMatch = line.split(": ").pop();
 
