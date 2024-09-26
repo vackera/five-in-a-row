@@ -53,6 +53,7 @@ let firstPlayerColorElement;
 let secondPlayerIconElement;
 let secondPlayerIconContainerElement;
 let secondPlayerColorElement;
+let infoMessageElement;
 let clickTimeout = null;
 let $dynamicStyles = $("<style></style>");
 let xhrResponseData = {};
@@ -80,6 +81,7 @@ $(document).ready(function () {
     secondPlayerIconElement = document.getElementById("second-player-icon");
     secondPlayerIconContainerElement = document.getElementById("second-player-icon-container");
     secondPlayerColorElement = document.getElementById("second-player-color");
+    infoMessageElement = document.getElementById("info-message");
 
     $(firstPlayerIconElement).text(playerIcon);
     $(firstPlayerIconContainerElement).css("background-color", playerIconColor);
@@ -433,6 +435,7 @@ function handleError(xhr) {
 
 function displayMessage(message, type, duration = 3000) {
 
+    $(infoMessageElement).text("");
     if (hideInfoBarTimer != null) {
         clearTimeout(hideInfoBarTimer);
     }
@@ -453,7 +456,7 @@ function displayMessage(message, type, duration = 3000) {
         $(infoBarElement).removeClass("message-error");
     }
 
-    $("#info-message").text(message);
+    $(infoMessageElement).text(message);
     $(infoBarElement).show();
 
     hideInfoBarTimer = setTimeout(() => {

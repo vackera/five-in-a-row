@@ -5,14 +5,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NewGameTest {
+class NewGameTest {
 
     private final String webServerAddress = "http://localhost:8080";
 
@@ -40,21 +42,17 @@ public class NewGameTest {
     }
 
     @Test
-    public void changeNewGameTest() throws InterruptedException {
+    void newGameTest() {
+
         driver.get(webServerAddress);
 
         driver.manage().window().setSize(new Dimension(500, 1000));
         driver.findElement(By.id("new-game-button")).click();
 
-        String actual = driver.findElement(By.cssSelector("#info-message")).getText();
         String expected = (String) js.executeScript("return MESSAGES.NEW_GAME;");
+        String actual = driver.findElement(By.cssSelector("#info-message")).getText();
 
-        assertThat(actual, is(expected));
-    }
-
-    private boolean isGameBoardEmpty() {
-
-        return true;
+        assertEquals(expected, actual);
     }
 
 }

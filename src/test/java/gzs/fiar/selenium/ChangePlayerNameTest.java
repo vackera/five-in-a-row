@@ -1,6 +1,5 @@
 package gzs.fiar.selenium;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +21,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ChangePlayerNameTest {
+class ChangePlayerNameTest {
 
     private final String webServerAddress = "http://localhost:8080";
 
@@ -43,6 +42,8 @@ public class ChangePlayerNameTest {
         ChromeOptions options = new ChromeOptions();
         driver = new ChromeDriver(options);
         js = (JavascriptExecutor) driver;
+        driver.get(webServerAddress);
+        driver.manage().window().setSize(new Dimension(500, 1000));
     }
 
     @AfterEach
@@ -52,13 +53,10 @@ public class ChangePlayerNameTest {
     }
 
     @Test
-    public void changePlayerNameTest_withValidInput() throws InterruptedException {
-        driver.get(webServerAddress);
+    void changePlayerNameTest_withValidInput() throws InterruptedException {
 
-        driver.manage().window().setSize(new Dimension(500, 1000));
-        driver.findElement(By.id("player-name")).click();
-        driver.findElement(By.id("player-name")).sendKeys("Test Player");
-        driver.findElement(By.id("player-name")).sendKeys(Keys.ENTER);
+        Thread.sleep(300);
+        sendPlayerName("Test Player");
 
         String expected = (String) js.executeScript("return MESSAGES.PLAYER_NAME_CHANGED;");
         String actual = driver.findElement(By.cssSelector("#info-message")).getText();
@@ -66,73 +64,54 @@ public class ChangePlayerNameTest {
     }
 
     @Test
-    public void changePlayerNameTest_withInvalidInputs() throws InterruptedException {
-
-        driver.get(webServerAddress);
-
-        driver.manage().window().setSize(new Dimension(500, 1000));
-
-        Thread.sleep(300);
-        driver.findElement(By.id("player-name")).click();
-        driver.findElement(By.id("player-name")).sendKeys("Test_Player");
-        driver.findElement(By.id("player-name")).sendKeys(Keys.ENTER);
-        Thread.sleep(100);
+    void changePlayerNameTest_withInvalidInputs() throws InterruptedException {
 
         String expected = (String) js.executeScript("return MESSAGES.INVALID_PLAYER_NAME;");
+
+        Thread.sleep(300);
+        sendPlayerName("Test_Pl@yer");
+        Thread.sleep(100);
+
         String actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
 
         Thread.sleep(300);
-        driver.findElement(By.id("player-name")).click();
-        driver.findElement(By.id("player-name")).sendKeys("Test Pl@yer");
-        driver.findElement(By.id("player-name")).sendKeys(Keys.ENTER);
+        sendPlayerName("");
         Thread.sleep(100);
 
-        expected = (String) js.executeScript("return MESSAGES.INVALID_PLAYER_NAME;");
         actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
 
         Thread.sleep(300);
-        driver.findElement(By.id("player-name")).click();
-        driver.findElement(By.id("player-name")).sendKeys("  ");
-        driver.findElement(By.id("player-name")).sendKeys(Keys.ENTER);
+        sendPlayerName("  ");
         Thread.sleep(100);
 
-        expected = (String) js.executeScript("return MESSAGES.INVALID_PLAYER_NAME;");
         actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
 
         js.executeScript("document.getElementById('player-name').removeAttribute('maxlength');");
 
         Thread.sleep(300);
-        driver.findElement(By.id("player-name")).click();
-        driver.findElement(By.id("player-name")).sendKeys("Valid Name But Too Long");
-        driver.findElement(By.id("player-name")).sendKeys(Keys.ENTER);
+        sendPlayerName("Valid Name But Too Long");
         Thread.sleep(100);
 
-        expected = (String) js.executeScript("return MESSAGES.INVALID_PLAYER_NAME;");
         actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
     }
 
     @Test
-    public void changePlayerNameTest_withInvalidInputs_disabledJavascriptCheck() throws JsonProcessingException, InterruptedException {
-
-        driver.get(webServerAddress);
+    void changePlayerNameTest_withInvalidInputs_disabledJavascriptPreCheck() throws InterruptedException {
 
         js.executeScript("isPlayerNameValid = function() { return true; }");
         js.executeScript("reloadPage = function() { }");
+        js.executeScript("document.getElementById('player-name').removeAttribute('maxlength');");
 
-        driver.manage().window().setSize(new Dimension(500, 1000));
-
-        driver.findElement(By.id("player-name")).click();
-        driver.findElement(By.id("player-name")).sendKeys("Test_Player");
-        driver.findElement(By.id("player-name")).sendKeys(Keys.ENTER);
+        sendPlayerName("Pl@yerName_");
 
         String xhrResponseData = (String) js.executeScript("return JSON.stringify(xhrResponseData);");
         Map<String, List<String>> fieldErrors = parseFieldErrors(xhrResponseData);
 
-        PlayerNameDto playerNameDto = new PlayerNameDto("Test_Player");
+        PlayerNameDto playerNameDto = new PlayerNameDto("Pl@yerName_");
         Set<ConstraintViolation<PlayerNameDto>> violations = validator.validate(playerNameDto);
 
         List<String> expectedMessages = extractValidationMessages(violations);
@@ -142,14 +121,12 @@ public class ChangePlayerNameTest {
 
         Thread.sleep(200);
 
-        driver.findElement(By.id("player-name")).click();
-        driver.findElement(By.id("player-name")).sendKeys("Te");
-        driver.findElement(By.id("player-name")).sendKeys(Keys.ENTER);
+        sendPlayerName("PN");
 
         xhrResponseData = (String) js.executeScript("return JSON.stringify(xhrResponseData);");
         fieldErrors = parseFieldErrors(xhrResponseData);
 
-        playerNameDto = new PlayerNameDto("Te");
+        playerNameDto = new PlayerNameDto("PN");
         violations = validator.validate(playerNameDto);
 
         expectedMessages = extractValidationMessages(violations);
@@ -159,9 +136,7 @@ public class ChangePlayerNameTest {
 
         Thread.sleep(200);
 
-        driver.findElement(By.id("player-name")).click();
-        driver.findElement(By.id("player-name")).sendKeys("");
-        driver.findElement(By.id("player-name")).sendKeys(Keys.ENTER);
+        sendPlayerName("");
 
         xhrResponseData = (String) js.executeScript("return JSON.stringify(xhrResponseData);");
         fieldErrors = parseFieldErrors(xhrResponseData);
@@ -173,6 +148,28 @@ public class ChangePlayerNameTest {
         actualMessages = fieldErrors.get("name");
 
         assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
+
+        Thread.sleep(200);
+
+        sendPlayerName("Valid Name But Too Long");
+
+        xhrResponseData = (String) js.executeScript("return JSON.stringify(xhrResponseData);");
+        fieldErrors = parseFieldErrors(xhrResponseData);
+
+        playerNameDto = new PlayerNameDto("Valid Name But Too Long");
+        violations = validator.validate(playerNameDto);
+
+        expectedMessages = extractValidationMessages(violations);
+        actualMessages = fieldErrors.get("name");
+
+        assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
+    }
+
+    private void sendPlayerName(String playerName) {
+
+        driver.findElement(By.id("player-name")).click();
+        driver.findElement(By.id("player-name")).sendKeys(playerName);
+        driver.findElement(By.id("player-name")).sendKeys(Keys.ENTER);
     }
 
     private Map<String, List<String>> parseFieldErrors(String xhrResponseData) {
@@ -202,6 +199,7 @@ public class ChangePlayerNameTest {
     }
 
     private List<String> extractValidationMessages(Set<ConstraintViolation<PlayerNameDto>> violations) {
+        
         List<String> messages = new ArrayList<>();
         for (ConstraintViolation<PlayerNameDto> violation : violations) {
             messages.add(violation.getMessage());
