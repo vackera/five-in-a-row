@@ -3,6 +3,7 @@ package gzs.fiar.selenium;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gzs.fiar.config.TestConfig;
 import gzs.fiar.dto.PlayerNameDto;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import jakarta.validation.ConstraintViolation;
@@ -15,15 +16,24 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
+@Import(TestConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 class ChangePlayerNameTest {
 
-    private final String webServerAddress = "http://localhost:8080";
+    @Autowired
+    private String serverAddress;
 
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -42,7 +52,7 @@ class ChangePlayerNameTest {
         ChromeOptions options = new ChromeOptions();
         driver = new ChromeDriver(options);
         js = (JavascriptExecutor) driver;
-        driver.get(webServerAddress);
+        driver.get(serverAddress);
         driver.manage().window().setSize(new Dimension(500, 1000));
     }
 
@@ -53,116 +63,140 @@ class ChangePlayerNameTest {
     }
 
     @Test
-    void changePlayerNameTest_withValidInput() throws InterruptedException {
-
-        Thread.sleep(300);
-        sendPlayerName("Test Player");
+    void changePlayerNameTest_withValidInput() {
 
         String expected = (String) js.executeScript("return MESSAGES.PLAYER_NAME_CHANGED;");
+
+        sendPlayerName("Test Player");
+        waitUntilInfoMessageChanges();
+
         String actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
     }
 
     @Test
-    void changePlayerNameTest_withInvalidInputs() throws InterruptedException {
+    void changePlayerNameTest_withInvalidInputs() {
 
         String expected = (String) js.executeScript("return MESSAGES.INVALID_PLAYER_NAME;");
+        String actual;
 
-        Thread.sleep(300);
         sendPlayerName("Test_Pl@yer");
-        Thread.sleep(100);
+        waitUntilInfoMessageChanges();
 
-        String actual = driver.findElement(By.cssSelector("#info-message")).getText();
+        actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
 
-        Thread.sleep(300);
+        waitUntilShakeStops();
+
         sendPlayerName("");
-        Thread.sleep(100);
+        waitUntilInfoMessageChanges();
 
         actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
 
-        Thread.sleep(300);
-        sendPlayerName("  ");
-        Thread.sleep(100);
+        waitUntilShakeStops();
+
+        sendPlayerName("@$&#_!?");
+        waitUntilInfoMessageChanges();
 
         actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
+
+        waitUntilShakeStops();
+
+        sendPlayerName("      ");
+        waitUntilInfoMessageChanges();
+
+        actual = driver.findElement(By.cssSelector("#info-message")).getText();
+        assertEquals(expected, actual);
+
+        waitUntilShakeStops();
 
         js.executeScript("document.getElementById('player-name').removeAttribute('maxlength');");
 
-        Thread.sleep(300);
         sendPlayerName("Valid Name But Too Long");
-        Thread.sleep(100);
+        waitUntilInfoMessageChanges();
 
         actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
     }
 
+    private void waitUntilInfoMessageChanges() {
+
+        await().atMost(5, TimeUnit.SECONDS).until(() -> {
+            String temp = driver.findElement(By.cssSelector("#info-message")).getText();
+            return !temp.isEmpty();
+        });
+    }
+
     @Test
-    void changePlayerNameTest_withInvalidInputs_disabledJavascriptPreCheck() throws InterruptedException {
+    void changePlayerNameTest_withInvalidInputs_disabledJavascriptPreCheck() {
 
         js.executeScript("isPlayerNameValid = function() { return true; }");
         js.executeScript("reloadPage = function() { }");
         js.executeScript("document.getElementById('player-name').removeAttribute('maxlength');");
 
-        sendPlayerName("Pl@yerName_");
+        String checkedPlayerName;
+        XHRResult xhrResult;
+        List<String> expectedMessages;
+        List<String> actualMessages;
 
-        String xhrResponseData = (String) js.executeScript("return JSON.stringify(xhrResponseData);");
-        Map<String, List<String>> fieldErrors = parseFieldErrors(xhrResponseData);
+        checkedPlayerName = "Pl@yerName_";
+        xhrResult = getXHRResult(checkedPlayerName);
 
-        PlayerNameDto playerNameDto = new PlayerNameDto("Pl@yerName_");
-        Set<ConstraintViolation<PlayerNameDto>> violations = validator.validate(playerNameDto);
-
-        List<String> expectedMessages = extractValidationMessages(violations);
-        List<String> actualMessages = fieldErrors.get("name");
-
+        expectedMessages = extractValidationMessages(xhrResult.violations());
+        actualMessages = xhrResult.fieldErrors().get("name");
         assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
 
-        Thread.sleep(200);
+        checkedPlayerName = "PN";
+        xhrResult = getXHRResult(checkedPlayerName);
 
-        sendPlayerName("PN");
+        expectedMessages = extractValidationMessages(xhrResult.violations());
+        actualMessages = xhrResult.fieldErrors().get("name");
+        assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
+
+        checkedPlayerName = "!?&@$ß";
+        xhrResult = getXHRResult(checkedPlayerName);
+
+        expectedMessages = extractValidationMessages(xhrResult.violations());
+        actualMessages = xhrResult.fieldErrors().get("name");
+        assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
+
+        checkedPlayerName = "";
+        xhrResult = getXHRResult(checkedPlayerName);
+
+        expectedMessages = extractValidationMessages(xhrResult.violations());
+        actualMessages = xhrResult.fieldErrors().get("name");
+        assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
+
+        checkedPlayerName = "Valid Name But Too Long";
+        xhrResult = getXHRResult(checkedPlayerName);
+
+        expectedMessages = extractValidationMessages(xhrResult.violations());
+        actualMessages = xhrResult.fieldErrors().get("name");
+        assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
+    }
+
+    private XHRResult getXHRResult(String checkedPlayerName) {
+
+        Set<ConstraintViolation<PlayerNameDto>> violations;
+        PlayerNameDto playerNameDto;
+        String xhrResponseData;
+        Map<String, List<String>> fieldErrors;
+
+        playerNameDto = new PlayerNameDto(checkedPlayerName);
+        sendPlayerName(checkedPlayerName);
+
+        waitUntilBackendResponses();
 
         xhrResponseData = (String) js.executeScript("return JSON.stringify(xhrResponseData);");
         fieldErrors = parseFieldErrors(xhrResponseData);
 
-        playerNameDto = new PlayerNameDto("PN");
         violations = validator.validate(playerNameDto);
+        return new XHRResult(fieldErrors, violations);
+    }
 
-        expectedMessages = extractValidationMessages(violations);
-        actualMessages = fieldErrors.get("name");
-
-        assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
-
-        Thread.sleep(200);
-
-        sendPlayerName("");
-
-        xhrResponseData = (String) js.executeScript("return JSON.stringify(xhrResponseData);");
-        fieldErrors = parseFieldErrors(xhrResponseData);
-
-        playerNameDto = new PlayerNameDto("");
-        violations = validator.validate(playerNameDto);
-
-        expectedMessages = extractValidationMessages(violations);
-        actualMessages = fieldErrors.get("name");
-
-        assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
-
-        Thread.sleep(200);
-
-        sendPlayerName("Valid Name But Too Long");
-
-        xhrResponseData = (String) js.executeScript("return JSON.stringify(xhrResponseData);");
-        fieldErrors = parseFieldErrors(xhrResponseData);
-
-        playerNameDto = new PlayerNameDto("Valid Name But Too Long");
-        violations = validator.validate(playerNameDto);
-
-        expectedMessages = extractValidationMessages(violations);
-        actualMessages = fieldErrors.get("name");
-
-        assertThat(actualMessages).containsExactlyInAnyOrderElementsOf(expectedMessages);
+    private record XHRResult(Map<String, List<String>> fieldErrors, Set<ConstraintViolation<PlayerNameDto>> violations) {
     }
 
     private void sendPlayerName(String playerName) {
@@ -177,7 +211,8 @@ class ChangePlayerNameTest {
         Map<String, List<String>> fieldErrorsMap = new HashMap<>();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> responseData = objectMapper.readValue(xhrResponseData, new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> responseData = objectMapper.readValue(xhrResponseData, new TypeReference<Map<String, Object>>() {
+            });
 
             String responseText = (String) responseData.get("responseText");
 
@@ -199,11 +234,27 @@ class ChangePlayerNameTest {
     }
 
     private List<String> extractValidationMessages(Set<ConstraintViolation<PlayerNameDto>> violations) {
-        
+
         List<String> messages = new ArrayList<>();
         for (ConstraintViolation<PlayerNameDto> violation : violations) {
             messages.add(violation.getMessage());
         }
         return messages;
+    }
+
+    private void waitUntilShakeStops() {
+
+        await().atMost(5, TimeUnit.SECONDS).until(() -> {
+            String temp = driver.findElement(By.cssSelector("#player-name")).getAttribute("class");
+            return temp != null && temp.contains("shake");
+        });
+    }
+
+    private void waitUntilBackendResponses() {
+
+        await().atMost(5, TimeUnit.SECONDS).until(() -> {
+            String temp = (String) js.executeScript("return JSON.stringify(xhrResponseData);");
+            return temp != null && !temp.equals("{}");
+        });
     }
 }

@@ -1,0 +1,45 @@
+spring:
+  profiles:
+    active: test
+  datasource:
+    url: jdbc:h2:mem:testDB
+    username: user
+    password: pass
+    driver-class-name: org.h2.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        show_sql: true
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+
+logging:
+  file:
+    path: logs/
+    name: logs/application.log
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+
+server:
+  base-url: "http://localhost"
+  port: 8081
+  servlet:
+    session:
+      timeout: 3m
+
+scheduled:
+  interval: 300000
+
+cors-policies: http://localhost:80, http://127.0.0.1:80, http://localhost:4200, http://127.0.0.1:4200
+
+test-user:
+  name: test-user
+  password: test-pass
+  role: "TESTER"

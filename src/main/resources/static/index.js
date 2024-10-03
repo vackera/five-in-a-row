@@ -190,6 +190,7 @@ $(document).ready(function () {
 
 function startNewGame(firstLoad) {
 
+    xhrResponseData = {};
     $.ajax({
         url: "/api/game/new",
         type: "POST",
@@ -268,6 +269,7 @@ function playerDoStep(coordinateY, coordinateX, cell) {
         coordinateX: coordinateX
     };
 
+    xhrResponseData = {};
     $.ajax({
         url: "/api/game/player-step",
         type: "POST",
@@ -384,6 +386,8 @@ function setPlayerName() {
         }, 500);
         return;
     }
+
+    xhrResponseData = {};
     $.ajax({
         url: "/api/game/player-name",
         type: "POST",
