@@ -53,6 +53,7 @@ public class ServerController {
                 request.getRemoteAddr(),
                 clickDetails.getScreenWidth(),
                 clickDetails.getScreenHeight());
-        log.info("Clicked: {}", clickDetails.getLink());
+
+        log.info("Clicked ({})", clickDetails.getLink());
     }
 }

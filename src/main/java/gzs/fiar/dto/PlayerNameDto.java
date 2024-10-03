@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PlayerNameDto {
 
-    @NotBlank(message = "Name can't be blank")
+    @NotBlank(message = "Name can not be blank")
     @Size(min = 3, max = 20, message = "Name has to be 3-20 characters")
     @Pattern(regexp = "^[a-zA-Z0-9 ]*$", message = "Name can only contain english letters, numbers, and spaces")
     private String name;

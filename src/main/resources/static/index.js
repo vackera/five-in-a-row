@@ -53,8 +53,10 @@ let firstPlayerColorElement;
 let secondPlayerIconElement;
 let secondPlayerIconContainerElement;
 let secondPlayerColorElement;
+let infoMessageElement;
 let clickTimeout = null;
 let $dynamicStyles = $("<style></style>");
+let xhrResponseData = {};
 
 const CSRF_TOKEN = $('meta[name="_csrf"]').attr("content");
 const CSRF_HEADER = $('meta[name="_csrf_header"]').attr("content");
@@ -79,6 +81,7 @@ $(document).ready(function () {
     secondPlayerIconElement = document.getElementById("second-player-icon");
     secondPlayerIconContainerElement = document.getElementById("second-player-icon-container");
     secondPlayerColorElement = document.getElementById("second-player-color");
+    infoMessageElement = document.getElementById("info-message");
 
     $(firstPlayerIconElement).text(playerIcon);
     $(firstPlayerIconContainerElement).css("background-color", playerIconColor);
@@ -187,6 +190,7 @@ $(document).ready(function () {
 
 function startNewGame(firstLoad) {
 
+    xhrResponseData = {};
     $.ajax({
         url: "/api/game/new",
         type: "POST",
@@ -217,9 +221,8 @@ function startNewGame(firstLoad) {
                 waitingForFirstStep();
             }, 6000);
         },
-        error: function (error) {
-            console.error(MESSAGES.RESPONSE_ERROR, error);
-            reloadPage();
+        error: function (xhr) {
+            handleError(xhr);
         }
     });
 
@@ -266,6 +269,7 @@ function playerDoStep(coordinateY, coordinateX, cell) {
         coordinateX: coordinateX
     };
 
+    xhrResponseData = {};
     $.ajax({
         url: "/api/game/player-step",
         type: "POST",
@@ -327,9 +331,8 @@ function playerDoStep(coordinateY, coordinateX, cell) {
             }
             $("#game-board-overlay").hide();
         },
-        error: function (error) {
-            console.error(MESSAGES.RESPONSE_ERROR, error);
-            reloadPage();
+        error: function (xhr) {
+            handleError(xhr);
         }
     });
 }
@@ -359,6 +362,12 @@ function createGameBoard() {
     }
 }
 
+function isPlayerNameValid(newPlayerName) {
+
+    const regex = /^[a-zA-Z0-9 ]*$/;
+    return regex.test(newPlayerName) && newPlayerName.length >= 3 && newPlayerName.length <= 20;
+}
+
 function setPlayerName() {
 
     playerNameChangeButtonIsClicked = true;
@@ -367,8 +376,7 @@ function setPlayerName() {
     $("#new-name-button").focus();
     let newPlayerName = $(playerNameElement).val().trim();
 
-    const regex = /^[a-zA-Z0-9 ]*$/;
-    if (!regex.test(newPlayerName) || newPlayerName.length < 3 || newPlayerName.length > 20) {
+    if (!isPlayerNameValid(newPlayerName)) {
         displayMessage(MESSAGES.INVALID_PLAYER_NAME, ALERT_TYPE.ERROR);
         $("#player-name").addClass("shake");
         setTimeout(() => {
@@ -378,6 +386,8 @@ function setPlayerName() {
         }, 500);
         return;
     }
+
+    xhrResponseData = {};
     $.ajax({
         url: "/api/game/player-name",
         type: "POST",
@@ -404,16 +414,32 @@ function setPlayerName() {
             playerName = newPlayerName;
             $(playerNameElement).val(playerName);
         },
-        error: function (error) {
-            console.error(MESSAGES.RESPONSE_ERROR, error);
-            reloadPage();
+        error: function (xhr) {
+            handleError(xhr);
         }
     });
+}
 
+function handleError(xhr) {
+
+    try {
+        xhrResponseData = {
+            status: xhr.status,
+            statusText: xhr.statusText,
+            responseText: xhr.responseText,
+            headers: xhr.getAllResponseHeaders()
+        };
+        console.error(MESSAGES.RESPONSE_ERROR, xhrResponseData.responseText);
+    } catch (e) {
+        console.error("Error while processing response:", e);
+    }
+
+    reloadPage();
 }
 
 function displayMessage(message, type, duration = 3000) {
 
+    $(infoMessageElement).text("");
     if (hideInfoBarTimer != null) {
         clearTimeout(hideInfoBarTimer);
     }
@@ -434,7 +460,7 @@ function displayMessage(message, type, duration = 3000) {
         $(infoBarElement).removeClass("message-error");
     }
 
-    $("#infoMessage").text(message);
+    $(infoMessageElement).text(message);
     $(infoBarElement).show();
 
     hideInfoBarTimer = setTimeout(() => {
