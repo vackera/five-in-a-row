@@ -7,7 +7,8 @@
         let countdown = 5;
 
         function updateCountdown() {
-            document.getElementById('countdown').innerHTML = countdown;
+
+            document.getElementById('countdown').innerHTML = countdown.toString();
             countdown--;
             if (countdown < 0) {
                 window.location.href = '/';

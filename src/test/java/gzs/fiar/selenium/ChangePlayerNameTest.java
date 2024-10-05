@@ -54,6 +54,11 @@ class ChangePlayerNameTest {
         js = (JavascriptExecutor) driver;
         driver.get(serverAddress);
         driver.manage().window().setSize(new Dimension(500, 1000));
+
+        js.executeScript("clearTimeout(playerNameInfoTimer);");
+        js.executeScript("clearTimeout(playerIconInfoTimer);");
+        js.executeScript("clearTimeout(firstStepAlertTimer);");
+        js.executeScript("hideInfoBar();");
     }
 
     @AfterEach

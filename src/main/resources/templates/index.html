@@ -40,17 +40,17 @@
             <button id="new-game-button">New game</button>
 
             <div id="player-icons">
-                <div id="info-icon-container">
-                    <span id="info-icon">?</span>
-                    <div id="info-box"></div>
+                <div id="player-icon-info-container">
+                    <span class="info-icon">?</span>
+                    <div id="player-icon-info"></div>
                 </div>
                 <div id="first-player-icon-container" class="icon-choice" data-index="0">
                     <span id="first-player-icon">X</span>
-                    <input id="first-player-color" type="color" />
+                    <input id="first-player-color" type="color"/>
                 </div>
                 <div id="second-player-icon-container" class="icon-choice" data-index="1">
                     <span id="second-player-icon">O</span>
-                    <input id="second-player-color" type="color" />
+                    <input id="second-player-color" type="color"/>
                 </div>
             </div>
 
@@ -60,7 +60,13 @@
             <form id="player-name-form">
                 <label for="player-name">Your name:</label>
                 <input type="text" id="player-name" name="playerName" value="Anonymous" maxlength="20">
-                <button id="new-name-button" type="submit">Change</button>
+                <div id="player-name-info-container">
+                    <span class="info-icon">?</span>
+                    <div id="player-name-info"></div>
+                </div>
+                <div id="player-name-button-container">
+                    <button id="new-name-button" type="submit">Change</button>
+                </div>
             </form>
         </div>
 

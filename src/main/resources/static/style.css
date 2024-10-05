@@ -6,6 +6,7 @@ body, html {
     background-image: url("matrix-bck.jpg");
     background-repeat: repeat;
     color: #041100;
+    font-family: "Times New Roman", Times, serif;
 }
 
 table {
@@ -20,6 +21,7 @@ table {
 #game-board {
     width: 100%;
     border-collapse: collapse;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #game-board-container {
@@ -101,24 +103,28 @@ td.winner-cell {
     line-height: 1;
 }
 
-#info-icon-container {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 5px;
-    position: relative;
-}
-
-#info-icon {
+.info-icon {
     cursor: help;
     font-size: 18px;
     font-weight: bold;
-    color: darkgreen;
+    color: #123b06;
 }
 
-#info-box {
+#player-name-wrapper .info-icon {
+    font-family: "Times New Roman", Times, serif;
+}
+
+#player-name-info-container {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 5px;
+    position: relative;
+}
+
+#player-name-info {
     display: none;
     position: absolute;
-    left: -100px;
+    left: -90px;
     transform: translateY(80%);
     background-color: #fff;
     border: 1px solid #ccc;
@@ -130,7 +136,47 @@ td.winner-cell {
     z-index: 1000;
 }
 
-#info-icon-container:hover #info-box {
+#player-name-info-container:hover #player-name-info {
+    display: block;
+}
+
+#player-name-button-container {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 5px;
+    position: relative;
+}
+
+#player-icon-info {
+    display: none;
+    position: absolute;
+    left: -90px;
+    transform: translateY(15%);
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    width: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+#player-name-info::before, #player-icon-info::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #ccc;
+    background-color: transparent;
+}
+
+#player-icon-info-container:hover #player-icon-info {
     display: block;
 }
 
@@ -139,10 +185,11 @@ td.winner-cell {
     align-items: center;
     gap: 5px;
     margin-left: auto;
-    border: 1px dashed darkgreen;
+    border: 1px dashed #123b06;
     border-radius: 10px;
     padding: 6px;
     position: relative;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .icon-choice {
@@ -212,6 +259,7 @@ td.winner-cell {
     right: 10px;
     transform: translateY(-50%);
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .results-error {
@@ -227,6 +275,7 @@ td.winner-cell {
     font-weight: bolder;
     background-color: #123b06;
     color: white;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #ranking-header:hover {
@@ -337,6 +386,7 @@ button {
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
 button:hover {
@@ -416,7 +466,7 @@ input::placeholder {
     font-style: italic;
 }
 
-#new-game-button, #new-name-button {
+#new-game-button {
     margin-left: 10px;
 }
 
@@ -475,7 +525,7 @@ input::placeholder {
         margin-left: 20px;
     }
 
-    #new-game-button, #new-name-button {
+    #new-game-button {
         margin-left: 10px;
     }
 
