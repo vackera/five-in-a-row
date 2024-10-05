@@ -21,7 +21,8 @@ const ALERT_TYPE = {
 const TABLE_HEIGHT = 15;
 const TABLE_WIDTH = 15;
 const DEFAULT_PLAYER_NAME = "Anonymous";
-const INFO_BOX_CONTENT = "<strong>Single click:</strong> Change color <br /><strong>Double click:</strong> Change icon";
+const PLAYER_NAME_INFO_CONTENT = "<strong>⬆ Type</strong> then <strong>click ⬆</strong>";
+const PLAYER_ICON_INFO_CONTENT = "<strong>Single click:</strong> Change color <br /><strong>Double click:</strong> Change icon";
 const DEFAULT_ICONS = "XO";
 const DEFAULT_ICON_COLORS = ["#ADD8E6", "#90EE90"];
 
@@ -39,13 +40,16 @@ let timePenaltyElement;
 let timePenaltyTimer = null;
 let firstStepAlertTimer = null;
 let hideInfoBarTimer = null;
+let playerNameInfoTimer = null;
+let playerIconInfoTimer = null;
 let aiVersion = null;
 let rankingIsUp = false;
 let playerNameChangeInProgress = false;
 let playerNameChangeButtonIsClicked = false;
 let playerName = getCookie("player-name");
 let infoBarElement;
-let infoBoxElement;
+let playerNameInfoElement;
+let playerIconInfoElement;
 let playerNameElement;
 let firstPlayerIconElement;
 let firstPlayerIconContainerElement;
@@ -62,6 +66,7 @@ const CSRF_TOKEN = $('meta[name="_csrf"]').attr("content");
 const CSRF_HEADER = $('meta[name="_csrf_header"]').attr("content");
 
 function addCsrfHeader(xhr) {
+
     if (CSRF_TOKEN && CSRF_HEADER) {
         xhr.setRequestHeader(CSRF_HEADER, CSRF_TOKEN);
     } else {
@@ -73,7 +78,8 @@ $(document).ready(function () {
 
     timePenaltyElement = document.getElementById("time-penalty-info");
     infoBarElement = document.getElementById("info-bar");
-    infoBoxElement = document.getElementById("info-box");
+    playerNameInfoElement = document.getElementById("player-name-info");
+    playerIconInfoElement = document.getElementById("player-icon-info");
     playerNameElement = document.getElementById("player-name");
     firstPlayerIconElement = document.getElementById("first-player-icon");
     firstPlayerIconContainerElement = document.getElementById("first-player-icon-container");
@@ -89,8 +95,8 @@ $(document).ready(function () {
     $(secondPlayerIconElement).text(aiIcon);
     $(secondPlayerIconContainerElement).css("background-color", aiIconColor);
     $(secondPlayerColorElement).val(aiIconColor);
-    $(infoBoxElement).html(INFO_BOX_CONTENT);
-
+    $(playerIconInfoElement).html(PLAYER_ICON_INFO_CONTENT);
+    $(playerNameInfoElement).html(PLAYER_NAME_INFO_CONTENT);
 
     $(firstPlayerIconContainerElement).addClass("selected");
 
@@ -186,7 +192,36 @@ $(document).ready(function () {
     setTimeout(() => {
         rankingUp();
     }, 500);
+
+    setPlayerNameInfoTimer();
+    setPlayerIconInfoTimer();
 });
+
+function setPlayerNameInfoTimer() {
+
+    playerNameInfoTimer = setTimeout(() => {
+        $(playerNameInfoElement).fadeIn(1000, () => {
+            setTimeout(() => {
+                $(playerNameInfoElement).fadeOut(1000, () => {
+                    $(playerNameInfoElement).removeAttr('style');
+                });
+            }, 2000);
+        });
+    }, 5000);
+}
+
+function setPlayerIconInfoTimer() {
+
+    playerIconInfoTimer = setTimeout(() => {
+        $("#player-icon-info").fadeIn(1000, () => {
+            setTimeout(() => {
+                $("#player-icon-info").fadeOut(1000, () => {
+                    $("#player-icon-info").removeAttr('style');
+                });
+            }, 2000);
+        });
+    }, 1500);
+}
 
 function startNewGame(firstLoad) {
 
