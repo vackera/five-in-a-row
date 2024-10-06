@@ -43,17 +43,18 @@ class GameServiceImplTest {
     @Test
     void test_newGame_withoutPreviousGameID_shouldCreateNewGame() {
 
+        //GIVEN
         String newGameID = "newGameID123";
-
         Game newGame = new Game();
         newGame.setId(newGameID);
 
         when(gameManager.newGame(newGameID)).thenReturn(newGame);
 
+        //WHEN
         String result = underTest.newGame("", newGameID);
 
+        //THEN
         assertEquals(newGameID, result);
-
         verify(gameManager, never()).deleteGame(any());
     }
 

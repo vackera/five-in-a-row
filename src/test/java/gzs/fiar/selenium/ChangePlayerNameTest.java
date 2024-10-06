@@ -85,7 +85,7 @@ class ChangePlayerNameTest {
         String expected = (String) js.executeScript("return MESSAGES.INVALID_PLAYER_NAME;");
         String actual;
 
-        sendPlayerName("Test_Pl@yer");
+        sendPlayerName("         ");
         waitUntilInfoMessageChanges();
 
         actual = driver.findElement(By.cssSelector("#info-message")).getText();
@@ -106,10 +106,10 @@ class ChangePlayerNameTest {
 
         actual = driver.findElement(By.cssSelector("#info-message")).getText();
         assertEquals(expected, actual);
-
+        //itt
         waitUntilShakeStops();
 
-        sendPlayerName("      ");
+        sendPlayerName("Test_Pl@yer");
         waitUntilInfoMessageChanges();
 
         actual = driver.findElement(By.cssSelector("#info-message")).getText();
@@ -250,8 +250,8 @@ class ChangePlayerNameTest {
     private void waitUntilShakeStops() {
 
         await().atMost(5, TimeUnit.SECONDS).until(() -> {
-            String temp = driver.findElement(By.cssSelector("#player-name")).getAttribute("class");
-            return temp != null && temp.contains("shake");
+            String temp = driver.findElement(By.cssSelector("#player-name")).getText();
+            return temp != null && temp.isEmpty();
         });
     }
 
