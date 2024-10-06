@@ -50,10 +50,10 @@ public class GameServiceImpl implements GameService {
     @Override
     public void changePlayerName(String gameID, String name) {
 
-        Game gameBoard = gameManager.getGame(gameID)
+        Game game = gameManager.getGame(gameID)
                 .orElseThrow(() -> new InvalidGameID(gameID));
 
-        gameBoard.setPlayerName(name);
+        game.setPlayerName(name);
     }
 
     @Override
