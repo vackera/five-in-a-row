@@ -6,7 +6,7 @@ A játékot itt nézheted meg működés közben : **[atomcomci.cloud](https://a
 
 ### Tervek
 
-Tervben van még az AI kódjának optimalizálása, játékerejének erősítése, és ezzel egyidejűleg a gépi játékos majdani különböző erősségű szintjeihez tartozó külön ranglisták létrehozása. Lehet az aktuális játékok állapotát inkább adatbázisban fogom tárolni, jelenleg ezeknek a minimális memória igénye miatt nem tartom szükségesnek a tartós tár használatát (de demozás szempontjából legalább több lesz a projektben az adatbáziskezelés). A frontend JS/CSS részét is lehetne még optimalizálni, rendbetenni. Ezen felül tesztek írásával is adós vagyok.
+Tervben van még az AI kódjának optimalizálása, játékerejének erősítése, és ezzel egyidejűleg a gépi játékos majdani különböző erősségű szintjeihez tartozó külön ranglisták létrehozása. Lehet az aktuális játékok állapotát inkább adatbázisban fogom tárolni, jelenleg ezeknek a minimális memória igénye miatt nem tartom szükségesnek a tartós tár használatát (de demozás szempontjából legalább több lesz a projektben az adatbáziskezelés). A frontend JS/CSS részét is lehetne még optimalizálni, rendbetenni, esetleg TypeScript alapokra helyezni, amit szintén tervezek megtanulni.
 
 ### A kódról
 
@@ -30,4 +30,4 @@ A gépi játékos régi logikáját teljesen változatlanul hagytam, csak refakt
 
 ![fiveinarownew2.png](assets/five-in-a-row-new-2.png)
 
-![fiveinarownew3.png](assets/five-in-a-row-new-3.png)
+![fiveinarownew4.png](assets/five-in-a-row-new-4.png)
