@@ -100,7 +100,6 @@ public class Game {
     public GameStatus getGameStatusAfterStep(PlayerType currentPlayer, StepDetails step) {
 
         endTime = LocalDateTime.now();
-        winnerCoordinates.clear();
 
         int coordinateX = step.getCoordinateX();
         int coordinateY = step.getCoordinateY();
@@ -135,6 +134,7 @@ public class Game {
         int rangeToBack = coordinateX - minLimit;
         int countInRow;
 
+        winnerCoordinates.clear();
         for (int i = rangeToBack; i >= 0; i--) {
             countInRow = 0;
             for (int j = 0; j < 5 && (coordinateX - i + j) < boardWidth; j++) {
@@ -161,6 +161,7 @@ public class Game {
         int rangeToBack = coordinateY - minLimit;
         int countInRow;
 
+        winnerCoordinates.clear();
         for (int i = rangeToBack; i >= 0; i--) {
             countInRow = 0;
             for (int j = 0; j < 5 && (coordinateY - i + j) < boardHeight; j++) {
@@ -192,6 +193,7 @@ public class Game {
         int rangeToBack = Math.min(rangeToBackY, rangeToBackX);
         int countInRow;
 
+        winnerCoordinates.clear();
         for (int i = rangeToBack; i >= 0; i--) {
             countInRow = 0;
             for (int j = 0; j < 5 && (coordinateY - i + j) < boardHeight && (coordinateX + i - j) >= 0; j++) {
@@ -223,6 +225,7 @@ public class Game {
         int rangeToBack = Math.min(rangeToBackY, rangeToBackX);
         int countInRow;
 
+        winnerCoordinates.clear();
         for (int i = rangeToBack; i >= 0; i--) {
             countInRow = 0;
             for (int j = 0; j < 5 && (coordinateY - i + j) < boardHeight && (coordinateX - i + j) < boardWidth; j++) {
