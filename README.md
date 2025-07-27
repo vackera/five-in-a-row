@@ -1,6 +1,6 @@
 Ezt az amőba játékot szántam bemutatkozó projektnek, ahol is egy 20 évvel ezelőtt készült DOS-os **C++** programomat alakítottam át modern webalkalmazássá (**Java** backend és **Javascript**, **JQuery**, **CSS**, **HTML** frontend technológiák alkalmazásával).
 
-A játékot itt nézheted meg működés közben : **[atomcomci.cloud](https://atomcomci.cloud)** (AWS)
+A játékot itt nézheted meg működés közben : **[atomcomci.duckdns.org](https://atomcomci.duckdns.org)** (AWS)
 
 ---
 
